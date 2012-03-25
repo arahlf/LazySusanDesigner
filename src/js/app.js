@@ -1,16 +1,58 @@
 Ext.onReady(function() {
+    var ACTIVE_COLOR = LSD.WoodTypes[0].getColor();
+    var selectedRow = null;
+
+    var rows = [];
+
+    Ext.each(LSD.WoodTypes, function(value) {
+        rows.push({
+            xtype: 'container',
+            padding: 3,
+            layout: 'hbox',
+            items: [{
+                xtype: 'component',
+                height: 25,
+                color: value.getColor(),
+                cls: 'lsd-menu-row',
+                html: '<div class="lsd-color-selector" style="background-color: ' + value.getColor() + '"></div><span class="lsd-menu-text">' + value.getDisplayName() + '</span>'
+            }]
+        })
+    });
+
+    var menuWindow = Ext.create('Ext.window.Window', {
+        width: 135,
+        height: 225,
+        bodyPadding: 5,
+        items: rows
+    });
+
+    menuWindow.show();
+
+    var selectRow = function(event, dom) {
+        var row = Ext.getCmp(dom.parentNode.id);
+
+        ACTIVE_COLOR = row.color;
+
+        if (selectedRow != null) {
+            selectedRow.removeCls('lsd-menu-row-active');
+        }
+
+        row.addCls('lsd-menu-row-active');
+        selectedRow = row;
+    }
+
+
+    menuWindow.el.on('mousedown', selectRow, window, {
+        delegate: '.lsd-color-selector'
+    });
+
+    selectRow(null, Ext.select('.lsd-color-selector').first().dom);
+
 
     var panel = Ext.create('Ext.panel.Panel', {
         title: 'Lazy Susan Designer',
+        bodyStyle: 'background-color: #cecece',
         layout: 'fit',
-        dockedItems: [{
-            xtype: 'toolbar',
-            dock: 'top',
-            items: [{
-                xtype: 'button',
-                iconCls: 'lsd-icon-paintcan'
-            }]
-        }],
         items: [{
             xtype: 'draw',
             viewBox: false,
@@ -24,52 +66,53 @@ Ext.onReady(function() {
     });
 
     var diamonds = [];
-    var startX = 400;
-    var startY = 300;
+    var startX = 325;
+    var startY = 325;
     var x = startX;
     var y = startY;
-    var side = 50;
+    var side = 40;
     var height = side * Math.sin(45 * (Math.PI / 180));
-    var tpl = new Ext.XTemplate('M{x} {y} L{[values.x+values.side]} {y} L{[values.x+values.side+values.height]} {[values.y+values.height]} L{[values.x+values.height]} {[values.y+values.height]} L{x} {y} Z');
     var draw = Ext.getCmp('foo');
-    var colors = ['#f00', '#0f0', '#00f', '#f00', '#0f0', '#00f', '#f00', '#0f0', '#00f'];
 
-    var addSprite = function(x, rotation, ring) {
-        var path = tpl.apply({ x: x, y: y, side: side, height: height });
 
-        var sprite = draw.surface.add({
-            type: 'path',
-            path: path,
-            fill: colors[ring],
-            rotate: {
-                x: startX,
-                y: y,
-                degrees: rotation
-            }
-        });
 
-        sprite.show(true);
-    };
 
-    called = 0;
+
 
     var addDiamond = function(x, y, rotation, ring) {
-        var path = tpl.apply({ x: x, y: y, side: side, height: height });
-        called++;
-        var sprite = draw.surface.add({
-            type: 'path',
-            path: path,
-            fill: colors[ring],
+        var baseColor = LSD.WoodTypes[1].getColor();
+
+        var sprite = draw.surface.add(Ext.create('LSD.Diamond', {
+            fill: baseColor,
+            baseColor: baseColor,
+            x: x,
+            y: y,
+            side: side,
+            shortSide: height,
             rotate: {
                 x: startX,
                 y: startY,
                 degrees: rotation
             }
+        }));
+
+        sprite.addListener('mouseout', function(sprite) {
+            sprite.setAttributes({
+                fill: sprite.baseColor
+            }, true);
+        });
+
+        sprite.addListener('mouseover', function(sprite) {
+            sprite.setAttributes({
+                fill: ACTIVE_COLOR
+            }, true);
         });
 
         sprite.addListener('mousedown', function(sprite) {
+            sprite.baseColor = ACTIVE_COLOR;
+
             sprite.setAttributes({
-                fill: '#000'   
+                fill: ACTIVE_COLOR,
             }, true);
         });
 
@@ -77,7 +120,6 @@ Ext.onReady(function() {
     }
 
     var rings = 7;
-
 
     for (var quadrant = 0; quadrant < 8; quadrant++) {
         for (var row = 0; row < rings; row++) {
