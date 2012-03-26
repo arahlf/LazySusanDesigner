@@ -1,7 +1,7 @@
 Ext.onReady(function() {
-    var ACTIVE_COLOR = LSD.WoodTypes[0].getColor();
+    var ringCount = 7;
     var selectedRow = null;
-
+    var rings = [];
     var rows = [];
 
     Ext.each(LSD.WoodTypes, function(value) {
@@ -20,7 +20,7 @@ Ext.onReady(function() {
     });
 
     var menuWindow = Ext.create('Ext.window.Window', {
-        width: 135,
+        width: 150,
         height: 225,
         bodyPadding: 5,
         items: rows
@@ -29,7 +29,7 @@ Ext.onReady(function() {
     menuWindow.show();
 
     var selectRow = function(event, dom) {
-        var row = Ext.getCmp(dom.parentNode.id);
+        var row = Ext.getCmp(dom.id);
 
         ACTIVE_COLOR = row.color;
 
@@ -43,10 +43,10 @@ Ext.onReady(function() {
 
 
     menuWindow.el.on('mousedown', selectRow, window, {
-        delegate: '.lsd-color-selector'
+        delegate: '.lsd-menu-row'
     });
 
-    selectRow(null, Ext.select('.lsd-color-selector').first().dom);
+    selectRow(null, Ext.select('.lsd-menu-row').item(3).dom);
 
 
     var panel = Ext.create('Ext.panel.Panel', {
@@ -79,8 +79,8 @@ Ext.onReady(function() {
 
 
 
-    var addDiamond = function(x, y, rotation, ring) {
-        var baseColor = LSD.WoodTypes[1].getColor();
+    var addDiamond = function(x, y, rotation, color) {
+        var baseColor = color || LSD.WoodTypes[0].getColor();
 
         var sprite = draw.surface.add(Ext.create('LSD.Diamond', {
             fill: baseColor,
@@ -108,23 +108,56 @@ Ext.onReady(function() {
             }, true);
         });
 
-        sprite.addListener('mousedown', function(sprite) {
-            sprite.baseColor = ACTIVE_COLOR;
+        sprite.addListener('mousedown', function(sprite, e) {
+            if (e.ctrlKey === true) {
+                Ext.each(rings, function(ring) {
+                    if (Ext.Array.contains(ring, sprite)) {
+                        Ext.each(ring, function(diamond) {
+                            diamond.baseColor = ACTIVE_COLOR;
 
-            sprite.setAttributes({
-                fill: ACTIVE_COLOR,
-            }, true);
+                            diamond.setAttributes({
+                                fill: ACTIVE_COLOR,
+                            }, true);
+                        });
+                    }
+                });
+            }
+            else {
+                sprite.baseColor = ACTIVE_COLOR;
+
+                sprite.setAttributes({
+                    fill: ACTIVE_COLOR,
+                }, true);
+            }
         });
 
         sprite.show(true);
+
+        return sprite;
     }
 
-    var rings = 7;
-
     for (var quadrant = 0; quadrant < 8; quadrant++) {
-        for (var row = 0; row < rings; row++) {
-            for (var col = 0; col < rings - row; col++) {
-                addDiamond(startX + side * col + (row * height), y + row * height, quadrant * 45, row);
+        for (var ring = 0; ring < ringCount; ring++) {
+            for (var i = ring; i >= 0; i--) {
+                var xPos = startX + side * ring;
+                var color;
+
+                if (i !== 0) {
+                    xPos += height * i - side * i;
+                    color = '#f00';
+                }
+
+                if (ring == 3) {
+                    color = '#0f0';
+                }
+
+                var diamond = addDiamond(xPos, y + i * height, quadrant * 45);
+
+                if (!Ext.isArray(rings[ring])) {
+                    rings[ring] = [];
+                }
+
+                rings[ring].push(diamond);
             }
         }
     }
