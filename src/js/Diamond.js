@@ -1,9 +1,11 @@
 Ext.define('LSD.Diamond', {
     extend: 'Ext.draw.Sprite',
 
-    type: 'path',
+    angle: null,
+    woodType: null,
+    lastWoodType: null,
 
-    angle: Math.sin(45 * (Math.PI / 180)),
+    type: 'path',
 
     tpl: new Ext.XTemplate(
                 'M{x} {y} ',
@@ -16,11 +18,28 @@ Ext.define('LSD.Diamond', {
 
     constructor: function(config) {
         var side = config.side,
-            shortSide = config.side * this.angle;
+            shortSide = config.side * config.angle;
+
+        config.woodType = LSD.WoodTypes[0];
 
         config.path = this.tpl.apply({ side: side, shortSide: shortSide, x: config.x, y: config.y });
+        config.fill = config.woodType.getColor();
 
         this.callParent(arguments);
-    }
 
+        this.lastWoodType = this.woodType;
+    },
+
+    setWoodType: function(woodType) {
+        this.lastWoodType = this.woodType;
+        this.woodType = woodType;
+
+        this.setAttributes({
+            fill: woodType.getColor()
+        }, true);
+    },
+
+    restorePreviousWoodType: function() {
+        this.setWoodType(this.lastWoodType);
+    }
 });

@@ -63,6 +63,7 @@ Ext.define('LSD.LazySusan', {
         return Ext.create('LSD.Diamond', {
             x: x,
             y: y,
+            angle: this.diamondAngle,
             side: this.diamondSize,
             fill: '#f00',
             baseColor: '#f00',

@@ -1,10 +1,9 @@
 Ext.onReady(function() {
-    var ringCount = 7;
     var selectedRow = null;
-    var rings = [];
+    var selectedWoodType = LSD.WoodTypes[0];
     var rows = [];
 
-    Ext.each(LSD.WoodTypes, function(value) {
+    Ext.each(LSD.WoodTypes, function(woodType) {
         rows.push({
             xtype: 'container',
             padding: 3,
@@ -12,9 +11,9 @@ Ext.onReady(function() {
             items: [{
                 xtype: 'component',
                 height: 25,
-                color: value.getColor(),
+                woodType: woodType,
                 cls: 'lsd-menu-row',
-                html: '<div class="lsd-color-selector" style="background-color: ' + value.getColor() + '"></div><span class="lsd-menu-text">' + value.getDisplayName() + '</span>'
+                html: '<div class="lsd-color-selector" style="background-color: ' + woodType.getColor() + '"></div><span class="lsd-menu-text">' + woodType.getDisplayName() + '</span>'
             }]
         })
     });
@@ -31,7 +30,7 @@ Ext.onReady(function() {
     var selectRow = function(event, dom) {
         var row = Ext.getCmp(dom.id);
 
-        ACTIVE_COLOR = row.color;
+        selectedWoodType = row.woodType;
 
         if (selectedRow != null) {
             selectedRow.removeCls('lsd-menu-row-active');
@@ -72,33 +71,23 @@ Ext.onReady(function() {
     });
 
     lazySusan.on('diamondmouseover', function(diamond, lazySusan, e) {
-        diamond.setAttributes({
-            fill: ACTIVE_COLOR
-        }, true);
+        diamond.setWoodType(selectedWoodType);
     });
 
     lazySusan.on('diamondmouseout', function(diamond, lazySusan, e) {
-        diamond.setAttributes({
-            fill: diamond.baseColor
-        }, true);
+        diamond.restorePreviousWoodType();
     });
 
     lazySusan.on('diamondmousedown', function(diamond, lazySusan, e) {
         if (e.ctrlKey === true) {
             var ring = lazySusan.getRingFromDiamond(diamond);
 
-            Ext.each(ring, function(d) {
-                d.baseColor = ACTIVE_COLOR;
-                d.setAttributes({
-                    fill: ACTIVE_COLOR,
-                }, true);
-            });
+            for (var i = 0; i < ring.length; i++) {
+                ring[i].setWoodType(selectedWoodType);
+            }
         }
         else {
-            diamond.baseColor = ACTIVE_COLOR;
-            diamond.setAttributes({
-                fill: ACTIVE_COLOR,
-            }, true);
+            diamond.setWoodType(selectedWoodType);
         }
     });
 });
