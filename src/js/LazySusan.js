@@ -4,7 +4,7 @@ Ext.define('LSD.LazySusan', {
     centerX: 325,
     centerY: 325,
     diamondSize: 40,
-    quadrants: 8, // calculate angle based off of this
+    quadrants: 8,
     ringCount: 7,
 
     constructor: function() {
@@ -45,6 +45,10 @@ Ext.define('LSD.LazySusan', {
         this.show(true);
     },
 
+    getAllDiamonds: function() {
+        return Ext.Array.flatten(this.rings);
+    },
+
     getRingFromDiamond: function(diamond) {
         for (var i = 0; i < this.rings.length; i++) {
             var ring = this.rings[i];
@@ -55,18 +59,12 @@ Ext.define('LSD.LazySusan', {
         }
     },
 
-    serialize: function() {
-        return null;
-    },
-
     createDiamond: function(x, y, rotation) {
         return Ext.create('LSD.Diamond', {
             x: x,
             y: y,
             angle: this.diamondAngle,
             side: this.diamondSize,
-            fill: '#f00',
-            baseColor: '#f00',
             shortSide: this.diamondHeight,
             rotate: {
                 x: this.centerX,

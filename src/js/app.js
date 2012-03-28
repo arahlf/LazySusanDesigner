@@ -48,10 +48,28 @@ Ext.onReady(function() {
     selectRow(null, Ext.select('.lsd-menu-row').item(3).dom);
 
 
+    var lazySusan;
+
+
     var panel = Ext.create('Ext.panel.Panel', {
         title: 'Lazy Susan Designer',
         bodyStyle: 'background-color: #cecece',
         layout: 'fit',
+        dockedItems: [{
+            xtype: 'toolbar',
+            items: [{
+                xtype: 'button',
+                iconCls: 'lsd-icon-link',
+                handler: function() {
+                    var strategy = new LSD.CompressionSerializationStrategy();
+                    console.log(strategy.serialize(lazySusan));
+                    //strategy.deserialize(lazySusan);
+                }
+            }, {
+                xtype: 'button',
+                iconCls: 'lsd-icon-help'
+            }]
+        }],
         items: [{
             xtype: 'draw',
             viewBox: false,
@@ -66,7 +84,7 @@ Ext.onReady(function() {
 
     var draw = Ext.getCmp('foo');
 
-    var lazySusan = Ext.create('LSD.LazySusan', {
+    lazySusan = Ext.create('LSD.LazySusan', {
         surface: draw.surface
     });
 

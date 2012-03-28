@@ -1,13 +1,14 @@
 Ext.define('LSD.WoodType', {
 
     config: {
+        code: null,
         displayName: null,
         color: null
     },
 
-    constructor: function(displayName, color) {
+    constructor: function(code, displayName, color) {
         this.callParent(arguments);
 
-        this.initConfig({displayName: displayName, color: color});
+        this.initConfig({code: code, displayName: displayName, color: color});
     }
 });

@@ -30,6 +30,10 @@ Ext.define('LSD.Diamond', {
         this.lastWoodType = this.woodType;
     },
 
+    getWoodType: function() {
+        return this.woodType;
+    },
+
     setWoodType: function(woodType) {
         this.lastWoodType = this.woodType;
         this.woodType = woodType;
