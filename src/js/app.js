@@ -3,7 +3,7 @@ Ext.onReady(function() {
     var selectedWoodType = LSD.WoodTypes[0];
     var rows = [];
 
-    Ext.each(LSD.WoodTypes, function(woodType) {
+    LSD.WoodTypes.each(function(woodType) {
         rows.push({
             xtype: 'container',
             padding: 3,

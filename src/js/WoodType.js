@@ -1,14 +1,17 @@
 Ext.define('LSD.WoodType', {
+    extend: 'Ext.data.Model',
 
-    config: {
-        code: null,
-        displayName: null,
-        color: null
+    fields: ['code', 'displayName', 'color'],
+
+    getCode: function() {
+        return this.get('code');
     },
 
-    constructor: function(code, displayName, color) {
-        this.callParent(arguments);
+    getColor: function() {
+        return this.get('color');
+    },
 
-        this.initConfig({code: code, displayName: displayName, color: color});
+    getDisplayName: function() {
+        return this.get('displayName');
     }
 });

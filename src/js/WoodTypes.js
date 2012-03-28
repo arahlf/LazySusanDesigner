@@ -1,8 +1,13 @@
-LSD.WoodTypes = [
-    new LSD.WoodType('b', 'Black Walnut', '#5f3c12'),
-    new LSD.WoodType('m', 'Maple', '#fdffe5'),
-    new LSD.WoodType('k', 'Padauk', '#b52500'),
-    new LSD.WoodType('a', 'Palea', '#ea934e'),
-    new LSD.WoodType('p', 'Purpleheart', '#7b3764'),
-    new LSD.WoodType('y', 'Yellowheart', '#eae954')
-];
+LSD.WoodTypes = Ext.create('Ext.data.Store', {
+    model: 'LSD.WoodType',
+
+    data: [
+        { code: 'b', color: '#5f3c12', displayName: 'Black Walnut' },
+        { code: 'm', color: '#fdffe5', displayName: 'Maple' },
+        { code: 'm', color: '#fdffe5', displayName: 'Maple' },
+        { code: 'k', color: '#b52500', displayName: 'Padauk' },
+        { code: 'a', color: '#ea934e', displayName: 'Palea' },
+        { code: 'p', color: '#7b3764', displayName: 'Purpleheart' },
+        { code: 'y', color: '#eae954', displayName: 'Yellowheart' }
+    ]
+});

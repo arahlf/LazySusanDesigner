@@ -20,7 +20,7 @@ Ext.define('LSD.Diamond', {
         var side = config.side,
             shortSide = config.side * config.angle;
 
-        config.woodType = LSD.WoodTypes[0];
+        config.woodType = LSD.WoodTypes.first();
 
         config.path = this.tpl.apply({ side: side, shortSide: shortSide, x: config.x, y: config.y });
         config.fill = config.woodType.getColor();
