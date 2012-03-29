@@ -2,6 +2,7 @@ Ext.onReady(function() {
     var selectedRow = null;
     var selectedWoodType = LSD.WoodTypes[0];
     var rows = [];
+    var serializer = new LSD.CompressionSerializer();
 
     LSD.WoodTypes.each(function(woodType) {
         rows.push({
@@ -61,9 +62,7 @@ Ext.onReady(function() {
                 xtype: 'button',
                 iconCls: 'lsd-icon-link',
                 handler: function() {
-                    var strategy = new LSD.CompressionSerializationStrategy();
-                    console.log(strategy.serialize(lazySusan));
-                    //strategy.deserialize(lazySusan);
+                    console.log(serializer.serialize(lazySusan));
                 }
             }, {
                 xtype: 'button',
@@ -107,5 +106,14 @@ Ext.onReady(function() {
         else {
             diamond.setWoodType(selectedWoodType);
         }
+
+        Ext.util.History.add(serializer.serialize(lazySusan));
     });
+
+
+    var token = Ext.util.History.getToken();
+
+    if (!Ext.isEmpty(token)) {
+        serializer.deserialize(lazySusan, token);
+    }
 });

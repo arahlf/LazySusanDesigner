@@ -1,11 +1,11 @@
-Ext.define('LSD.CompressionSerializationStrategy', {
-    extend: 'LSD.SerializationStrategy',
+Ext.define('LSD.CompressionSerializer', {
+    extend: 'LSD.Serializer',
 
     serialize: function(lazySusan) {
         var diamonds = lazySusan.getAllDiamonds();
         var sb = [], diamond;
         var currentCode;
-        var currentCount = 0;
+        var count = 0;
 
         for (var d = 0; d < diamonds.length; d++) {
             diamond = diamonds[d];
@@ -14,45 +14,33 @@ Ext.define('LSD.CompressionSerializationStrategy', {
 
             if (currentCode === undefined) {
                 currentCode = code;
-                currentCount = 1;
+                count = 1;
             }
             else if (code === currentCode) {
-                currentCount++;
+                count++;
             }
             else {
-                if (currentCount > 1) {
-                    sb.push(currentCount);
+                if (count > 1) {
+                    sb.push(count);
                 }
 
-                sb.push(code);
+                sb.push(currentCode);
 
                 currentCode = code;
-                currentCount = 1;
+                count = 1;
             }
         }
 
-        if (currentCount > 1) {
-            sb.push(currentCount);
+        if (count > 1) {
+            sb.push(count);
         }
         sb.push(currentCode);
 
         return sb.join('');
     },
 
-    deserialize: function(lazySusan) {
-        function getWoodType(code) {
-            for (var i = 0; i < LSD.WoodTypes.length; i++) {
-                var woodType = LSD.WoodTypes[i];
-
-                if (woodType.getCode() === code) {
-                    return woodType;
-                }
-            }
-
-            throw new Error('Unrecognized wood type code: ' + code);
-        }
-
-        var str = '3k3y2b216b';
+    deserialize: function(lazySusan, serializedForm) {
+        var str = serializedForm;
         var diamonds = lazySusan.getAllDiamonds();
 
         while (str.length > 0) {
@@ -66,7 +54,7 @@ Ext.define('LSD.CompressionSerializationStrategy', {
 
             var code = str.slice(0, 1);
             str = str.substr(1);
-            var woodType = getWoodType(code);
+            var woodType = LSD.WoodTypes.findRecord('code', code);
 
             for (var i = 0; i < count; i++) {
                 var diamond = diamonds.shift();
