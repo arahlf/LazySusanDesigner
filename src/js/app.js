@@ -3,6 +3,25 @@ Ext.onReady(function() {
     var selectedWoodType = LSD.WoodTypes[0];
     var rows = [];
     var serializer = new LSD.CompressionSerializer();
+    var lazySusan;
+    var history = [];
+    var historyIndex = 0;
+
+    function undo() {
+        if (history[historyIndex]) {
+            var command = history[historyIndex--];
+            command.undo();
+        }
+    }
+
+    function redo() {
+        if (history[historyIndex + 1]) {
+            var command = history[++historyIndex];
+            command.execute();
+        }
+    }
+
+
 
     LSD.WoodTypes.each(function(woodType) {
         rows.push({
@@ -21,12 +40,20 @@ Ext.onReady(function() {
 
     var menuWindow = Ext.create('Ext.window.Window', {
         width: 150,
-        height: 225,
+        height: 255,
         bodyPadding: 5,
+        closable: false,
+        dockedItems: [{
+            xtype: 'toolbar',
+            items: ['->', {
+                xtype: 'button',
+                iconCls: 'lsd-icon-help'
+            }]
+        }],
         items: rows
     });
 
-    menuWindow.showAt(700, 250);
+    menuWindow.showAt(730, 250);
 
     var selectRow = function(event, dom) {
         var row = Ext.getCmp(dom.id);
@@ -49,26 +76,14 @@ Ext.onReady(function() {
     selectRow(null, Ext.select('.lsd-menu-row').item(3).dom);
 
 
-    var lazySusan;
+    
 
 
     var panel = Ext.create('Ext.panel.Panel', {
         title: 'Lazy Susan Designer',
         bodyStyle: 'background-color: #cecece',
         layout: 'fit',
-        dockedItems: [{
-            xtype: 'toolbar',
-            items: [{
-                xtype: 'button',
-                iconCls: 'lsd-icon-link',
-                handler: function() {
-                    console.log(serializer.serialize(lazySusan));
-                }
-            }, {
-                xtype: 'button',
-                iconCls: 'lsd-icon-help'
-            }]
-        }],
+
         items: [{
             xtype: 'draw',
             viewBox: false,
@@ -87,6 +102,7 @@ Ext.onReady(function() {
         surface: draw.surface
     });
 
+    /*
     lazySusan.on('diamondmouseover', function(diamond, lazySusan, e) {
         diamond.setWoodType(selectedWoodType);
     });
@@ -94,18 +110,21 @@ Ext.onReady(function() {
     lazySusan.on('diamondmouseout', function(diamond, lazySusan, e) {
         diamond.restorePreviousWoodType();
     });
+    */
 
     lazySusan.on('diamondmousedown', function(diamond, lazySusan, e) {
-        if (e.ctrlKey === true) {
-            var ring = lazySusan.getRingFromDiamond(diamond);
+        var command;
 
-            for (var i = 0; i < ring.length; i++) {
-                ring[i].setWoodType(selectedWoodType);
-            }
+        if (e.ctrlKey === true) {
+            command = new LSD.BatchWoodChangeCommand(lazySusan.getRingFromDiamond(diamond), selectedWoodType);
         }
         else {
-            diamond.setWoodType(selectedWoodType);
+            command = new LSD.WoodChangeCommand(diamond, selectedWoodType);
         }
+
+        history.push(command);
+        historyIndex = history.length - 1;
+        command.execute();
 
         Ext.util.History.add(serializer.serialize(lazySusan));
     });
@@ -116,4 +135,17 @@ Ext.onReady(function() {
     if (!Ext.isEmpty(token)) {
         serializer.deserialize(lazySusan, token);
     }
+
+
+
+    Ext.EventManager.on(document.body, 'keyup', function(e) {
+        if (e.ctrlKey) {
+            if (e.keyCode === 90) {
+                undo();
+            }
+            if (e.keyCode === 89) {
+                redo();
+            }
+        }
+    })
 });

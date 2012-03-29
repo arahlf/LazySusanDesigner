@@ -1,9 +1,9 @@
 Ext.define('LSD.LazySusan', {
     extend: 'Ext.draw.CompositeSprite',
 
-    centerX: 325,
-    centerY: 325,
-    diamondSize: 40,
+    centerX: 370,
+    centerY: 370,
+    diamondSize: 45,
     quadrants: 8,
     ringCount: 7,
 
