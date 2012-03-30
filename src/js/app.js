@@ -1,7 +1,5 @@
 Ext.onReady(function() {
-    var selectedRow = null;
-    var selectedWoodType = LSD.WoodTypes[0];
-    var rows = [];
+    var selectedWoodType = LSD.WoodTypes.first();
     var serializer = new LSD.CompressionSerializer();
     var lazySusan;
     var history = [];
@@ -11,6 +9,8 @@ Ext.onReady(function() {
         if (history[historyIndex]) {
             var command = history[historyIndex--];
             command.undo();
+
+            Ext.util.History.add(serializer.serialize(lazySusan));
         }
     }
 
@@ -18,66 +18,17 @@ Ext.onReady(function() {
         if (history[historyIndex + 1]) {
             var command = history[++historyIndex];
             command.execute();
+
+            Ext.util.History.add(serializer.serialize(lazySusan));
         }
     }
 
-
-
-    LSD.WoodTypes.each(function(woodType) {
-        rows.push({
-            xtype: 'container',
-            padding: 3,
-            layout: 'hbox',
-            items: [{
-                xtype: 'component',
-                height: 25,
-                woodType: woodType,
-                cls: 'lsd-menu-row',
-                html: '<div class="lsd-color-selector" style="background-color: ' + woodType.getColor() + '"></div><span class="lsd-menu-text">' + woodType.getDisplayName() + '</span>'
-            }]
-        })
-    });
-
-    var menuWindow = Ext.create('Ext.window.Window', {
-        width: 150,
-        height: 255,
-        bodyPadding: 5,
-        closable: false,
-        dockedItems: [{
-            xtype: 'toolbar',
-            items: ['->', {
-                xtype: 'button',
-                iconCls: 'lsd-icon-help'
-            }]
-        }],
-        items: rows
-    });
-
+    var menuWindow = Ext.create('LSD.MenuWindow');
     menuWindow.showAt(730, 250);
 
-    var selectRow = function(event, dom) {
-        var row = Ext.getCmp(dom.id);
-
-        selectedWoodType = row.woodType;
-
-        if (selectedRow != null) {
-            selectedRow.removeCls('lsd-menu-row-active');
-        }
-
-        row.addCls('lsd-menu-row-active');
-        selectedRow = row;
-    }
-
-
-    menuWindow.el.on('mousedown', selectRow, window, {
-        delegate: '.lsd-menu-row'
+    menuWindow.on('woodtypeselect', function(woodType) {
+        selectedWoodType = woodType;
     });
-
-    selectRow(null, Ext.select('.lsd-menu-row').item(3).dom);
-
-
-    
-
 
     var panel = Ext.create('Ext.panel.Panel', {
         title: 'Lazy Susan Designer',
@@ -135,8 +86,6 @@ Ext.onReady(function() {
     if (!Ext.isEmpty(token)) {
         serializer.deserialize(lazySusan, token);
     }
-
-
 
     Ext.EventManager.on(document.body, 'keyup', function(e) {
         if (e.ctrlKey) {

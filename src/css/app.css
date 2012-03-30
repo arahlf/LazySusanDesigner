@@ -5,9 +5,10 @@
 .lsd-menu-row {
     line-height: 25px;
     cursor: pointer;
+    margin-bottom: 5px;
 }
 
-.lsd-menu-row-active {
+.lsd-menu-row-selected {
     font-weight: bold;
 }
 
