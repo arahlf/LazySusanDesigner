@@ -3,7 +3,6 @@ Ext.define('LSD.Diamond', {
 
     angle: null,
     woodType: null,
-    lastWoodType: null,
 
     type: 'path',
 
@@ -26,8 +25,6 @@ Ext.define('LSD.Diamond', {
         config.fill = config.woodType.getColor();
 
         this.callParent(arguments);
-
-        this.lastWoodType = this.woodType;
     },
 
     getWoodType: function() {
@@ -35,15 +32,14 @@ Ext.define('LSD.Diamond', {
     },
 
     setWoodType: function(woodType) {
-        this.lastWoodType = this.woodType;
         this.woodType = woodType;
 
-        this.setAttributes({
-            fill: woodType.getColor()
-        }, true);
+        this.setColor(woodType.getColor());
     },
 
-    restorePreviousWoodType: function() {
-        this.setWoodType(this.lastWoodType);
+    setColor: function(color) {
+        this.setAttributes({
+            fill: color
+        }, true);
     }
 });

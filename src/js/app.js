@@ -1,5 +1,7 @@
+// http://arahlf/LazySusanDesigner/#kmkmkmkmykymykymykymykym2yk2ym2yk2ym2yk2ym2yk2ymby2pby2pby2pby2pby2pby2pby2pby2pk2bp2k2bp2k2bp2k2bp2k2bp2k2bp2k2bp2k2bpkmkbak2mkbak2mkbak2mkbak2mkbak2mkbak2mkbak2mkbakmamkakm2bmkakm2amkakm2bmkakm2amkakm2bmkakm2amkakm2bmkakma
+
 Ext.onReady(function() {
-    var selectedWoodType = LSD.WoodTypes.first();
+    var selectedWoodType = LSD.WoodTypes.getAt(1);
     var serializer = new LSD.CompressionSerializer();
     var lazySusan;
     var history = [];
@@ -30,6 +32,8 @@ Ext.onReady(function() {
         selectedWoodType = woodType;
     });
 
+    menuWindow.selectWoodType(selectedWoodType);
+
     var panel = Ext.create('Ext.panel.Panel', {
         title: 'Lazy Susan Designer',
         bodyStyle: 'background-color: #cecece',
@@ -53,15 +57,13 @@ Ext.onReady(function() {
         surface: draw.surface
     });
 
-    /*
     lazySusan.on('diamondmouseover', function(diamond, lazySusan, e) {
-        diamond.setWoodType(selectedWoodType);
+        diamond.setColor(selectedWoodType.getColor());
     });
 
     lazySusan.on('diamondmouseout', function(diamond, lazySusan, e) {
-        diamond.restorePreviousWoodType();
+        diamond.setColor(diamond.getWoodType().getColor());
     });
-    */
 
     lazySusan.on('diamondmousedown', function(diamond, lazySusan, e) {
         var command;

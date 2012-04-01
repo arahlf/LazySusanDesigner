@@ -6,13 +6,14 @@ Ext.define('LSD.MenuWindow', {
     closable: false,
     resizable: false,
 
+    loaded: false,
     selectedItemCls: 'lsd-menu-row-selected',
     selectedItem: null,
 
     initComponent: function() {
         this.addEvents('woodtypeselect');
 
-        this.items = Ext.create('Ext.view.View', {
+        var dataView = this.dataView = Ext.create('Ext.view.View', {
             store: LSD.WoodTypes,
             tpl: new Ext.XTemplate(
                 '<tpl for=".">',
@@ -24,21 +25,41 @@ Ext.define('LSD.MenuWindow', {
             ),
             itemSelector: '.lsd-menu-row',
             listeners: {
-                itemclick: this.onMenuRowClick,
+                itemclick: this.changeSelection,
                 scope: this
             }
         });
 
+        dataView.on('refresh', function() {
+            this.loaded = true;
+        }, this, { single: true });
+
+        this.items = dataView;
+
         this.callParent(arguments);
     },
 
-    afterRender: function() {
-        this.callParent(arguments);
+    selectWoodType: function(woodType) {
+        var me = this;
 
-        el = this.el.dom;
+        function changeSelection() {
+            var storeIndex = LSD.WoodTypes.indexOf(woodType);
+            var menuItem = me.el.select('.lsd-menu-row').item(storeIndex).dom;
+            
+            me.changeSelection(me, woodType, menuItem);
+        }
+
+        if (this.loaded) {
+            changeSelection();
+        }
+        else {
+            this.dataView.on('refresh', function() {
+                changeSelection();
+            }, this, { single: true });
+        }
     },
 
-    onMenuRowClick: function(dataView, record, item, index) {
+    changeSelection: function(dataView, record, item) {
         if (this.selectedItem !== null) {
             Ext.fly(this.selectedItem).removeCls(this.selectedItemCls);
         }
